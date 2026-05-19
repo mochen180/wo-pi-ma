@@ -1,187 +1,202 @@
-# AI智能体开发教学项目
+# LLM Client Project
 
 ## 项目结构
 
 ```
-project1/
-├── practice01/          # 练习目录1 - 基础LLM调用
-│   └── llm_client.py     # LLM客户端代码
-├── practice02/          # 练习目录2 - 交互式聊天
-│   └── chat_client.py    # 交互式聊天客户端
-├── venv/               # 虚拟环境
-├── .env                # 环境配置文件（用户创建）
-├── .env.example        # 环境配置示例
-├── .gitignore          # Git忽略文件
-└── README.md           # 项目说明
+.
+├── practice01/
+│   ├── llm_client.py      # 基础 LLM API 客户端代码
+│   └── llm_client_v2.py   # 终端聊天增强版客户端代码
+├── practice02/
+│   ├── tools.py           # 工具调用功能模块
+│   └── llm_client_with_tools.py  # 支持工具调用的客户端代码
+├── venv/                # Python 虚拟环境
+├── .env                 # 环境变量配置文件
+├── .gitignore           # Git 忽略文件配置
+└── env.example          # 环境变量示例文件
 ```
 
-## 代码功能说明
+## Python 代码功能说明
 
 ### practice01/llm_client.py
 
-**功能用途：**
-1. **环境变量加载**：从项目根目录的`.env`文件读取配置信息
-2. **LLM API调用**：使用Python标准HTTP库调用OpenAI兼容协议的LLM服务
-3. **性能统计**：
-   - 统计token消耗（输入、输出、总token数）
-   - 计算响应时间
-   - 计算token处理速度（tokens/s）
-4. **错误处理**：处理网络连接、API响应等各种错误情况
+该文件实现了一个简单的 LLM (Large Language Model) API 客户端，主要功能如下：
 
-**核心功能：**
-- `load_env()`: 加载并解析.env文件中的配置
-- `call_llm(prompt, env_vars)`: 调用LLM API并返回结果和统计信息
+1. **环境变量加载** (`load_env` 函数)
+   - 从项目根目录的 `.env` 文件中读取环境变量
+   - 支持的环境变量包括：
+     - `BASE_URL`: API 基础 URL（默认值：`https://api.openai.com/v1`）
+     - `MODEL`: 使用的模型（默认值：`gpt-4`）
+     - `API_KEY`: API 密钥（必须）
+   - 包含错误处理，当 .env 文件不存在或读取失败时给出提示
 
-**默认配置：**
-- BASE_URL: http://127.0.0.1:1234（本地模型默认地址）
-- MODEL: qwen3.5-4b（默认模型）
-- API_KEY: qwen3.5-4b（默认API密钥）
-- MAX_TOKENS: 1000
-- TEMPERATURE: 0.7
+2. **LLM API 调用** (`call_llm` 函数)
+   - 接受用户输入的 prompt 和环境变量作为参数
+   - 构建 API 请求数据，包括模型、消息和温度参数
+   - 发送 HTTP 请求到指定的 API 端点
+   - 处理 API 响应，包括：
+     - 提取响应内容
+     - 计算 token 使用情况（提示词 token、完成 token、总 token）
+     - 计算响应时间和 token 处理速度
+     - 处理 HTTP 错误和其他异常
 
-### practice02/chat_client.py
+3. **主函数** (`main` 函数)
+   - 加载环境变量
+   - 使用测试 prompt（"请解释什么是人工智能"）调用 API
+   - 显示 API 响应结果或错误信息
+   - 显示统计信息，包括 token 使用情况、响应时间和处理速度
 
-**功能用途：**
-1. **交互式聊天**：支持在终端中输入聊天信息
-2. **流式输出**：实时显示AI的响应，模拟真实对话体验
-3. **历史记录**：自动将历史聊天记录添加到上下文，保持对话连贯性
-4. **持续对话**：循环运行直到用户按Ctrl+C退出
-5. **性能统计**：每次对话后显示token消耗和性能指标
+### practice01/llm_client_v2.py
 
-**核心功能：**
-- `load_env()`: 加载并解析.env文件中的配置
-- `call_llm_stream(prompt, env_vars, messages)`: 流式调用LLM API并实时显示响应
+该文件实现了一个增强版的终端聊天工具，在基础版的基础上添加了以下功能：
 
-**默认配置：**
-- BASE_URL: http://127.0.0.1:1234（本地模型默认地址）
-- MODEL: qwen3.5-4b（默认模型）
-- API_KEY: qwen3.5-4b（默认API密钥）
-- MAX_TOKENS: 1000
-- TEMPERATURE: 0.7
+1. **终端界面输入**
+   - 支持在终端中实时输入聊天内容
+   - 按 Enter 发送消息，按 Ctrl+C 退出
 
-## 教学目标
+2. **流式输出**
+   - 启用 API 的流式输出功能
+   - 实时显示 AI 的响应内容，模拟自然对话体验
 
-### Practice 01 - 基础LLM调用
+3. **历史聊天记录管理**
+   - 自动记录聊天历史
+   - 在每次请求中自动添加上下文，实现连续对话
+   - 支持多轮对话，保持上下文连贯性
 
-1. **Python基础**：
-   - 文件操作（读取.env文件）
-   - 异常处理
-   - 模块导入和使用
+4. **循环运行机制**
+   - 持续运行，直到用户按 Ctrl+C 退出
+   - 每次对话后显示统计信息
 
-2. **网络编程**：
-   - 使用标准库`http.client`进行HTTP请求
-   - URL解析和处理
-   - 请求头设置和认证
+5. **增强的错误处理**
+   - 处理 HTTP 错误和其他异常
+   - 在出错时保持聊天历史的一致性
 
-3. **API调用**：
-   - 理解OpenAI兼容协议的API结构
-   - 构建正确的请求数据
-   - 解析API响应
+### practice02/tools.py
 
-4. **性能分析**：
-   - 时间计算和性能统计
-   - Token消耗分析
-   - 速度计算
+该文件实现了6个工具，用于支持LLM的工具调用功能：
 
-5. **配置管理**：
-   - 环境变量配置
-   - 配置文件使用
+1. **list_files(directory)**
+   - 列出指定目录下的所有文件和子目录
+   - 返回文件列表和文件数量
+   - 包含错误处理，检查目录是否存在
 
-6. **错误处理**：
-   - 网络错误处理
-   - API错误处理
-   - 配置错误处理
+2. **rename_file(directory, old_name, new_name)**
+   - 修改指定目录下文件的名字
+   - 检查原文件是否存在，目标文件是否已存在
+   - 返回操作结果和相关信息
 
-### Practice 02 - 交互式聊天
+3. **delete_file(directory, filename)**
+   - 删除指定目录下的文件
+   - 检查文件是否存在，确保不是目录
+   - 返回操作结果
 
-1. **流式API调用**：
-   - 理解流式响应的工作原理
-   - 实时处理和显示流式数据
-   - 处理SSE（Server-Sent Events）格式
+4. **create_file(directory, filename, content)**
+   - 在指定目录下创建新文件并写入内容
+   - 检查目录是否存在，文件是否已存在
+   - 返回操作结果和内容长度信息
 
-2. **交互式界面**：
-   - 终端输入输出处理
-   - 用户输入捕获
-   - 实时响应显示
+5. **read_file(directory, filename)**
+   - 读取指定目录下文件的内容
+   - 检查文件是否存在，确保不是目录
+   - 返回文件内容和长度信息
 
-3. **对话管理**：
-   - 维护聊天历史记录
-   - 上下文管理和传递
-   - 历史记录长度控制
+6. **search_internet(query)**
+   - 根据用户对话的内容搜索互联网
+   - 使用DuckDuckGo Instant Answer API，不需要API密钥
+   - 不需要复杂的登录流程，直接使用公开API
+   - 返回真实的搜索结果，包含标题、URL和摘要
+   - 当API调用失败时，返回模拟结果
 
-4. **事件处理**：
-   - 键盘中断处理（Ctrl+C退出）
-   - 异常捕获和处理
-   - 优雅退出机制
+**TOOLS字典**
+- 包含所有工具的元数据
+- 每个工具包含函数引用、描述和参数定义
+- 用于LLM理解和调用这些工具
 
-5. **用户体验**：
-   - 实时响应反馈
-   - 清晰的界面提示
-   - 性能指标展示
+### practice02/llm_client_with_tools.py
+
+该文件实现了支持工具调用的LLM客户端，在llm_client_v2.py的基础上添加了工具调用功能：
+
+1. **工具调用系统提示词构建**
+   - 自动生成包含所有工具描述的系统提示词
+   - 定义工具调用的格式和规则
+   - 提供工具调用示例
+
+2. **工具调用解析**
+   - 从LLM响应中识别JSON格式的工具调用
+   - 提取工具名称和参数
+   - 验证工具调用的有效性
+
+3. **工具执行**
+   - 根据工具名称调用相应的函数
+   - 传递参数并执行工具操作
+   - 处理工具执行结果和错误
+
+4. **交互式工具调用流程**
+   - 用户输入请求
+   - LLM分析请求并生成工具调用
+   - 执行工具操作
+   - 将工具结果反馈给LLM
+   - LLM根据工具结果生成最终回复
+
+5. **增强的终端界面**
+   - 显示可用的工具列表
+   - 显示工具调用过程和结果
+   - 保持流式输出的用户体验
 
 ## 使用方法
 
-### Practice 01 - 基础LLM调用
+### 基础版（llm_client.py）
 
-1. **配置环境**：
-   - 复制`env.example`为`.env`
-   - 填写正确的API配置信息
-
-2. **运行测试**：
+1. 复制 `env.example` 文件为 `.env`
+2. 在 `.env` 文件中填写你的 API 密钥
+3. 运行 `llm_client.py` 文件：
    ```bash
-   cd practice01
-   python llm_client.py
+   python practice01/llm_client.py
    ```
 
-3. **查看结果**：
-   - LLM的响应内容
-   - Token使用统计
-   - 性能指标
+### 终端聊天版（llm_client_v2.py）
 
-### Practice 02 - 交互式聊天
-
-1. **配置环境**：
-   - 使用与practice01相同的`.env`配置
-
-2. **运行聊天客户端**：
+1. 复制 `env.example` 文件为 `.env`
+2. 在 `.env` 文件中填写你的 API 密钥
+3. 运行 `llm_client_v2.py` 文件：
    ```bash
-   cd practice02
-   python chat_client.py
+   python practice01/llm_client_v2.py
    ```
+4. 在终端中输入你的问题，按 Enter 发送
+5. 查看 AI 的实时响应
+6. 按 Ctrl+C 退出聊天
 
-3. **使用方法**：
-   - 在终端中输入消息并按回车
-   - 观察AI的实时流式响应
-   - 继续输入新的问题，系统会保持对话上下文
-   - 按Ctrl+C退出聊天
+### 工具调用版（llm_client_with_tools.py）
 
-4. **查看结果**：
-   - 实时的AI响应
-   - 每次对话后的性能统计
-   - 持续的对话历史
+1. 复制 `env.example` 文件为 `.env`
+2. 在 `.env` 文件中填写你的 API 密钥
+3. 运行 `llm_client_with_tools.py` 文件：
+   ```bash
+   python practice02/llm_client_with_tools.py
+   ```
+4. 在终端中输入文件操作或互联网搜索请求，例如：
+   - "列出当前目录的文件"
+   - "创建一个名为test.txt的文件，内容为Hello World"
+   - "读取test.txt文件的内容"
+   - "将test.txt重命名为hello.txt"
+   - "删除hello.txt文件"
+   - "搜索Python的最新版本"
+   - "搜索如何使用Git"
+   - "搜索今天的新闻"
+5. 查看 AI 的实时响应和工具执行结果
+6. 按 Ctrl+C 退出聊天
 
-## 支持的LLM服务
+## 依赖项
 
-- **本地模型**：通过Ollama等工具部署的本地模型
-- **国内服务**：智谱AI、百川智能等OpenAI兼容服务
-- **OpenAI官方**：需要网络访问权限
-
-## 扩展建议
-
-1. 添加更多API参数支持
-2. 实现批量请求功能
-3. 添加缓存机制
-4. 支持流式响应
-5. 实现不同模型的适配
-
-## 技术栈
-
-- Python 3.11+
-- 标准库：os, json, time, http.client, urllib.parse
-- 无第三方依赖
+- Python 3.x
+- 标准库：os, json, time, urllib, sys
 
 ## 注意事项
 
-- 确保`.env`文件中的API密钥安全，不要提交到版本控制系统
-- 对于本地模型，需要先启动模型服务
-- 不同LLM服务的API格式可能略有差异，需要根据实际情况调整配置
+- 确保在 `.env` 文件中正确设置 API_KEY
+- 对于 `llm_client_v2.py` 和 `llm_client_with_tools.py`，建议使用支持流式输出的 API 端点，默认使用 `https://api.openai.com/v1/chat/completions`
+- 根据使用的 LLM 服务，可能需要调整 `BASE_URL` 和 `MODEL` 参数
+- 该代码默认使用 OpenAI API 格式，如需使用其他 LLM 服务，可能需要修改请求格式
+- 长时间运行可能会累积大量聊天历史，注意 token 使用量
+- 工具调用功能需要 LLM 能够理解并生成正确的工具调用格式
+- 文件操作工具会对实际文件系统进行操作，请谨慎使用
